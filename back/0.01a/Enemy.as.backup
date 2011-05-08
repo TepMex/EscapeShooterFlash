@@ -1,0 +1,35 @@
+﻿package  {
+	
+	import flash.display.MovieClip;
+	import flash.display.Stage;
+	import flash.events.Event;
+	
+	public class Enemy extends MovieClip {
+		
+		var recDamage:int = 0;
+		
+		public static var enemyCounter:int = 0;
+		
+		public function Enemy(stage:Stage) {
+			
+			this.x = stage.stageWidth;
+			this.y = Math.round(Math.random()*stage.stageHeight);
+			
+			enemyCounter++;
+			this.name = "enemy"+enemyCounter;
+			
+			trace(this.name);
+			
+			this.addEventListener(Event.ENTER_FRAME, this.moveAsEnemy);
+			
+		}
+		
+		function moveAsEnemy(e:Event):void {
+			
+			this.x--;
+			
+		}
+		
+	}
+	
+}
