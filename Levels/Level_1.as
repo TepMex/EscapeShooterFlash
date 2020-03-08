@@ -1,10 +1,13 @@
 package Levels
 {
 	import flash.geom.Point;
-	
+	import Creatures.*;
+	import Items.*;
 	
 	public class Level_1 extends Level
 	{
+		
+		private const offset:int = 30;
 		
 		public function Level_1():void
 		{
@@ -12,18 +15,20 @@ package Levels
 			super();
 			
 			this.entryPoint = new Point(315, 210);
+			this.exitPoint = new Point(this.target.x, this.target.y + offset); //must be fixed
 			
 			this.x = 0;
-			this.y = 0;
+			this.y = offset;
 			
 			Game.stageLink.addChild(this);
+			
 			
 		}
 		
 		public override function Update():void
 		{
 			
-			if (pause) { return; }
+			if (this.heroLink.hitTestPoint(this.exitPoint.x, this.exitPoint.y, true)) { Game.endGame(Game.ENDCODE_YOUWIN); }
 			
 			var i:int;
 			
@@ -37,7 +42,18 @@ package Levels
 					
 				}
 				
+				Enemy.allEnemies[i].Update();
+				
 			}
+			
+			for (i = 0; i < Bullet.allBullets.length; i++)
+			{
+				
+				Bullet.allBullets[i].Update();
+				
+			}
+			
+			this.heroLink.Update();
 			
 		}
 		

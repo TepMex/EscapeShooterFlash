@@ -4,13 +4,24 @@ package
 	import flash.display.Stage;
 	import flash.events.Event;
 	import flash.display.StageScaleMode;
+	import flash.events.FocusEvent;
+	import flash.events.KeyboardEvent;
+	import flash.geom.Point;
+	import Items.LoseWindow;
+	import Items.WinWindow;
 	import Levels.*;
+	import Creatures.Character;
+	import Items.GameCursor;
 	
 	public class Game extends Sprite
 	{
 		
 		public static const ENDCODE_GAMEOVER:int = 1;
 		public static const ENDCODE_YOUWIN:int = 2;
+		
+		public static const MESSAGE_BOX_COORDS:Point = new Point(175, 100);
+		
+		public static var pause:Boolean = false;
 		
 		public static var stageLink:Stage;
 		public static var gameLink:Game;
@@ -45,22 +56,35 @@ package
 			
 			cursor = new GameCursor();
 			
+			stageLink.addEventListener(Event.ACTIVATE, onActivate, false, 0, true);
+			stageLink.addEventListener(Event.DEACTIVATE, onDeactivate, false, 0, true);
+			
 			stageLink.addEventListener(Event.ENTER_FRAME, Update, false, 0, true); //must be called last
+			
 			
 			
 		}
 		
 		public function setLevel(id:int):void
 		{
+			if (currLevel != null)
+			{
+				currLevel.deleteLevel();
+			}
 			
+			
+			pause = false;
 			var levelClass:Class = stageLink.loaderInfo.applicationDomain.getDefinition("Levels.Level_" + id) as Class;
 			currLevel = new levelClass();
 			currLevel.heroLink = new Character();
+			this.levelId = id;
 			
 		}
 		
 		public function Update(e:Event):void
 		{
+			
+			if (pause) { return; }
 			
 			currLevel.Update();
 			
@@ -75,8 +99,8 @@ package
 				case ENDCODE_GAMEOVER:
 				{
 					
-					trace("Game over");
-					currLevel.heroLink.death();
+					currLevel.heroLink.deleteCharacter();
+					currLevel.addChild(new LoseWindow);
 					break;
 					
 				}
@@ -84,13 +108,30 @@ package
 				case ENDCODE_YOUWIN:
 				{
 					
-					trace("You safed");
+					currLevel.heroLink.deleteCharacter();
+					currLevel.addChild(new WinWindow);
 					break;
 					
 				}
 				
 				
 			}
+			
+			pause = true;
+			
+		}
+		
+		public function onDeactivate(e:Event):void
+		{
+			
+			pause = true;
+			
+		}
+		
+		public function onActivate(e:Event):void
+		{
+			
+			pause = false;
 			
 		}
 		

@@ -1,10 +1,11 @@
-package
+package Creatures
 {
 	import flash.display.MovieClip;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
+	import Items.Bullet;
 	
 	
 	public class Character extends MovieClip
@@ -24,31 +25,35 @@ package
 			
 			this.shootSound = new Firesound();
 			
-			Game.stageLink.addChild(this);
+			Game.currLevel.addChild(this);
 			
 			Game.stageLink.addEventListener(MouseEvent.MOUSE_MOVE, rotateByMouse, false, 0, true);
 			Game.stageLink.addEventListener(MouseEvent.MOUSE_DOWN, shoot, false, 0, true);
 			Game.stageLink.addEventListener(KeyboardEvent.KEY_DOWN, setKeyboardFlags, false, 0, true);
 			Game.stageLink.addEventListener(KeyboardEvent.KEY_UP, resetKeyboardFlags, false, 0, true);
 			
-			this.addEventListener(Event.ENTER_FRAME, this.moveByKeyboard);
+			Game.stageLink.focus = this;
 			
 		}
 		
 		private function rotateByMouse(e:MouseEvent):void 
 		{
 			
-			this.rotation = Math.atan2(e.stageY - this.y, e.stageX - this.x) * 180 / Math.PI;
+			var mouseLoc:Point = new Point(e.stageX, e.stageY);
+			mouseLoc = Game.currLevel.globalToLocal(mouseLoc);
+			this.rotation = Math.atan2(mouseLoc.y - this.y, mouseLoc.x - this.x) * 180 / Math.PI;
 			
 		}
 		
 		private function shoot(e:MouseEvent):void
 		{
 			
-			if (Bullet.allBullets.length >= 3) { return; }
+			if (Game.pause) { return; }
+			
+			if (Bullet.allBullets.length >= Bullet.MAX_BULLETS_ON_SCREEN) { return; }
 			
 			var gunPoint:Point = new Point(this.gun.x, this.gun.y);
-			gunPoint = this.localToGlobal(gunPoint);
+			gunPoint = parent.globalToLocal(this.localToGlobal(gunPoint));
 			var b:Bullet = new Bullet(gunPoint, this.rotation);
 			
 			shootSound.play();
@@ -102,36 +107,52 @@ package
 			
 		}
 			
-		private function moveByKeyboard(e:Event):void 
+		public function Update():void 
 		{
 			
-			if (this.keyboardFlags.W)
+			//magic numbers must be fix
+			if (this.keyboardFlags.W && this.y > 16)
 			{
 				this.y -= this.speed;
 			}
 				
-			if (this.keyboardFlags.A)
+			if (this.keyboardFlags.A && this.x > 16)
 			{
 				this.x -= this.speed;
 			}
 				
-			if (this.keyboardFlags.S)
+			if (this.keyboardFlags.S && this.y < 374)
 			{
 				this.y += this.speed;
 			}
 				
-			if (this.keyboardFlags.D)
+			if (this.keyboardFlags.D && this.x < 614)
 			{
 				this.x += this.speed;
 			}
 			
 		}
 		
-		public function death():void
+		public function deleteCharacter():void
 		{
 			
-			parent.removeChild(this);
-			Game.currLevel.pause = true;
+			Game.stageLink.removeEventListener(MouseEvent.MOUSE_MOVE, rotateByMouse);
+			Game.stageLink.removeEventListener(MouseEvent.MOUSE_DOWN, shoot);
+			Game.stageLink.removeEventListener(KeyboardEvent.KEY_DOWN, setKeyboardFlags);
+			Game.stageLink.removeEventListener(KeyboardEvent.KEY_UP, resetKeyboardFlags);
+			
+			try
+			{
+				Game.currLevel.removeChild(this);
+			}
+			catch(e:TypeError)
+			{
+				trace(e.errorID);
+			}
+			catch (e:ArgumentError)
+			{
+				trace(e.errorID);
+			}
 			delete this;
 			
 		}

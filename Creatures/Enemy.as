@@ -1,4 +1,4 @@
-package
+package Creatures
 {
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -9,7 +9,9 @@ package
 		
 		public static var allEnemies:Array = new Array();
 		public static var enemyCounter:int;
-		private const speed:Number = 1.3;
+		private const speed:Number = 2;
+		
+		private var armor:int = 5;
 		
 		private var dx:Number;
 		private var dy:Number;
@@ -23,21 +25,30 @@ package
 			
 			allEnemies.push(this);
 			
-			this.addEventListener(Event.ENTER_FRAME, runForHero, false, 0, true);
+		}
+		
+		public function getDamage():void
+		{
+			armor--;
+			if (!armor)
+			{
+				var d:DeadEnemy  = new DeadEnemy(this);
+				allEnemies.splice(allEnemies.indexOf(this), 1);
+				parent.removeChild(this);
+				delete this;
+			}
 			
 		}
 		
-		public function death():void
+		public function Update():void
 		{
 			
-			allEnemies.splice(allEnemies.indexOf(this), 1);
-			parent.removeChild(this);
-			delete this;
-			
-		}
-		
-		private function runForHero(e:Event):void
-		{
+			if (hitsObstacles())
+			{
+				this.x -= this.dx;
+				this.y -= this.dy;
+				return;
+			}
 			
 			var xdistance:Number;
 			var ydistance:Number;
@@ -50,18 +61,13 @@ package
 			this.dx = (speed * xdistance) / distance;
 			this.dy = (speed * ydistance) / distance;
 			
-			if (hitsEnemy())
-			{
-				this.dx = - this.dx;
-				this.dy = - this.dy;
-			}
 			
 			this.x += this.dx;
 			this.y += this.dy;
 			
 		}
 		
-		private function hitsEnemy():Boolean
+		private function hitsObstacles():Boolean
 		{
 			
 			for (var i:int = 0; i < Enemy.allEnemies.length; i++)

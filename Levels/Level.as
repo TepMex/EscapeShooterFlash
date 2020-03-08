@@ -2,14 +2,15 @@ package Levels
 {
 	import flash.display.Sprite;
 	import flash.geom.Point;
+	import Creatures.Character;
+	import Items.Bullet;
+	import Creatures.Enemy;
 	
 	public class Level extends Sprite
 	{
 		
-		public var pause:Boolean = false;
-		
 		public var entryPoint:Point;
-		public var exitPoint:Sprite;
+		public var exitPoint:Point;
 		
 		public var heroLink:Character;
 		
@@ -26,6 +27,16 @@ package Levels
 		{
 			
 			
+			
+		}
+		
+		public function deleteLevel():void
+		{
+			
+			Bullet.allBullets = new Array();
+			Enemy.allEnemies = new Array();
+			parent.removeChild(this);
+			delete this;
 			
 		}
 		

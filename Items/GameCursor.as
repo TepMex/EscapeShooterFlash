@@ -1,4 +1,4 @@
-﻿package  
+﻿package  Items
 {
 	
 	import flash.display.Sprite;
@@ -32,6 +32,16 @@
 			
 			this.x = e.stageX;
 			this.y = e.stageY;
+			
+			redraw();
+			
+		}
+		
+		private function redraw():void
+		{
+			
+			Game.stageLink.removeChild(this);
+			Game.stageLink.addChild(this);
 			
 		}
 		
